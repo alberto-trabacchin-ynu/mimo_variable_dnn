@@ -2,12 +2,10 @@ import numpy as np
 
 
 def sigmoid(Z):
-    A = 1/(1 + np.exp(-Z))
-    return A
+    return 1/(1 + np.exp(-Z))
 
 def relu(Z):
-    A = np.maximum(0, Z)
-    return A
+    return np.maximum(0, Z)
 
 def feed_forward(W, b, A):
     return np.dot(W, A) + b
@@ -21,3 +19,9 @@ def full_feed_forward(layers_dim, params, X):
         A_prev = params["A" + str(i)]
     return params
 
+def cost_function(Y_hat, Y):
+    m = Y_hat.shape[1]
+    Y_diff = np.power(Y_hat - Y, 2)
+    Y_rse = np.sqrt(Y_diff)
+    Y_mrse = 1 / m * np.sum(Y_rse)
+    return Y_mrse
