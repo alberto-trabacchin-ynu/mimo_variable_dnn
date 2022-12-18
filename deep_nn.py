@@ -1,10 +1,19 @@
 import numpy as np
 
 def init_parameters(layers_dim):
-    params = {}
-    for l in range(len(layers_dim) - 1):
-        params["W" + str(l+1)] = np.random.rand(layers_dim[l+1], layers_dim[l])
-        params["b" + str(l+1)] = np.zeros((layers_dim[l+1], 1))
+    W = []
+    b = []
+    Z = []
+    A = []
+    for l in range(len(layers_dim)):
+        W.append(np.random.rand(layers_dim[l+1], layers_dim[l]))
+        b.append(np.zeros((layers_dim[l+1], 1)))
+    params = {
+        "W": W,
+        "b": b,
+        "Z": Z,
+        "A": A
+    }
     return params
 
 def sigmoid(Z):
@@ -19,9 +28,11 @@ def relu(Z):
     return A
 
 def forward_prop(A_prev, W, b):
+    cache = {}
     Z = np.dot(W, A_prev) + b
     A = sigmoid(Z)
-    cache = Z
+    cache["Z"] = Z
+    cache["A"] = A
     return A, cache
 
 def full_forward_prop(X, Y, params, layers_dim):
@@ -40,6 +51,26 @@ def back_prop(dA, W, Z, A_prev, m):
     dA_prev = np.dot(W.T, dZ)
     return dA_prev, dW, db
 
+#Change indexing method (NOT CLEAR!)
+def full_back_prop(dA, caches, params, layers_dim):
+    grads = {}
+    m = caches[0]["Z"].shape[1]
+    for l in range(len(layers_dim), 1, -1):
+        W = params["W" + str(l-1)]
+        Z = caches[l-2]["Z"]
+        A_prev = caches[l-2]["A"]
+        dA_prev, dW, db = back_prop(dA, W, Z, A_prev, m)
+        grads["dW" + str(l-1)] = dW
+        grads["db" + str(l-1)] = db
+        dA = dA_prev
+    return grads
+
+def update_params(params, grads, alpha):
+    for i in range(len(params)):
+        params["W" + str(i+1)] = params["W" + str(i+1)] - alpha * grads["dW" + str(i+1)]
+        params["b" + str(i+1)] = params["b" + str(i+1)] - alpha * grads["db" + str(i+1)]
+    return params
+
 def compute_cost(Y, Y_hat):
     m = Y.shape[1]
     loss = np.multiply(Y, np.log(Y_hat)) + np.multiply(1 - Y, np.log(1 - Y_hat))
@@ -47,4 +78,9 @@ def compute_cost(Y, Y_hat):
     return loss
 
 def train_model(X, Y, params, layers_dim):
-    Y, caches = full_forward_prop(X, Y, params, layers_dim)
+    Y_hat, caches = full_forward_prop(X, Y, params, layers_dim)
+    dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
+    grads = full_back_prop(dA, caches, params, layers_dim)
+    #params = update_params(params, grads, 0.1)
+    
+    return grads

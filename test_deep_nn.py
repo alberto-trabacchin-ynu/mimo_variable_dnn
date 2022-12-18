@@ -73,7 +73,8 @@ class TestDeepNN(unittest.TestCase):
     def test_full_forward_prop(self):
         m = 10
         n = 3
-        layers_dim = [n, 4, 2]
+        p = 2
+        layers_dim = [n, 4, p]
         X = np.ones((n, m))
         Y = np.ones((2, 2))
         params = deep_nn.init_parameters(layers_dim)
@@ -82,11 +83,12 @@ class TestDeepNN(unittest.TestCase):
     def test_train_model(self):
         m = 10
         n = 3
-        layers_dim = [n, 4, 2]
+        p = 2
+        layers_dim = [n, 4, p]
         X = np.ones((n, m))
-        Y = np.ones((2, 2))
+        Y = np.ones((p, m))
         params = deep_nn.init_parameters(layers_dim)
-        deep_nn.train_model(X, Y, params, layers_dim)
-
+        grads = deep_nn.train_model(X, Y, params, layers_dim)
+        print(grads["dW2"].shape)
 if __name__ == '__main__':
     unittest.main()
