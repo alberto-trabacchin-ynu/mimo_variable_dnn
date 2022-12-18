@@ -5,7 +5,7 @@ def init_parameters(layers_dim):
     b = []
     Z = []
     A = []
-    for l in range(len(layers_dim)):
+    for l in range(len(layers_dim) - 1):
         W.append(np.random.rand(layers_dim[l+1], layers_dim[l]))
         b.append(np.zeros((layers_dim[l+1], 1)))
     params = {
@@ -28,21 +28,18 @@ def relu(Z):
     return A
 
 def forward_prop(A_prev, W, b):
-    cache = {}
     Z = np.dot(W, A_prev) + b
     A = sigmoid(Z)
-    cache["Z"] = Z
-    cache["A"] = A
-    return A, cache
+    return A, Z
 
 def full_forward_prop(X, Y, params, layers_dim):
-    caches = []
     A_prev = X
-    for l in range(len(layers_dim) - 1):
-        A, cache = forward_prop(A_prev, params["W" + str(l+1)], params["b" + str(l+1)])
+    for l in range(len(layers_dim)):
+        A, Z = forward_prop(A_prev, params["W"][l], params["b"][l])
+        params["A"][l] = A
+        params["Z"][l] = Z
         A_prev = A
-        caches.append(cache)
-    return A, caches
+    return params
 
 def back_prop(dA, W, Z, A_prev, m):
     dZ = np.multiply(dA, Dsigmoid(Z))
@@ -79,8 +76,8 @@ def compute_cost(Y, Y_hat):
 
 def train_model(X, Y, params, layers_dim):
     Y_hat, caches = full_forward_prop(X, Y, params, layers_dim)
-    dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
-    grads = full_back_prop(dA, caches, params, layers_dim)
+    #dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
+    #grads = full_back_prop(dA, caches, params, layers_dim)
     #params = update_params(params, grads, 0.1)
     
     return grads
