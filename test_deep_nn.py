@@ -47,7 +47,14 @@ class TestDeepNN(unittest.TestCase):
         params = {}
         params["Z"] = 0
         dAdZ = deep_nn.sigmoid_backward(params["Z"])
-        print(dAdZ)
+
+    def test_full_feed_backward(self):
+        A = np.ones((2, 2))
+        Z = np.ones((2, 2))
+        dA, db = deep_nn.full_feed_backward(A, Z)
+        print(dA)
+        print()
+        print(db)
 
 if __name__ == '__main__':
     unittest.main()
