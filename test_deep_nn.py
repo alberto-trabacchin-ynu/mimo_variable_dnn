@@ -43,5 +43,11 @@ class TestDeepNN(unittest.TestCase):
         cost = deep_nn.cost_function(Y_hat, Y)
         self.assertEqual(cost, exp_cost)
 
+    def test_sigmoid_backward(self):
+        params = {}
+        params["Z"] = 0
+        dAdZ = deep_nn.sigmoid_backward(params["Z"])
+        print(dAdZ)
+
 if __name__ == '__main__':
     unittest.main()
