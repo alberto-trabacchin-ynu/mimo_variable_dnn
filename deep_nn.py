@@ -25,3 +25,7 @@ def cost_function(Y_hat, Y):
     Y_rse = np.sqrt(Y_diff)
     Y_mrse = 1 / m * np.sum(Y_rse)
     return Y_mrse
+
+def sigmoid_backward(Z):
+    return sigmoid(Z) * (1 - sigmoid(Z))
+
