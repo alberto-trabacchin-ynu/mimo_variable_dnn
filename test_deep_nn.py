@@ -20,9 +20,6 @@ class TestDeepNN(unittest.TestCase):
         params = deep_nn.init_parameters(layers_dim, m)
         X = np.array([[0.3, 0.4, 0.1, -0.9, -0.2],
                       [-0.5, 0.1, 0.2, -0.6, 0.1]])
-        Y_exp = np.array( [[0.56463498, 0.56677739, 0.56616644, 0.56063789, 0.56494168],
-                           [0.56463498, 0.56677739, 0.56616644, 0.56063789, 0.56494168],
-                           [0.56463498, 0.56677739, 0.56616644, 0.56063789, 0.56494168]] )
         params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim)
 
     @unittest.skip("Need to change data format")
