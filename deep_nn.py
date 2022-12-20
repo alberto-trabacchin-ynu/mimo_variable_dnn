@@ -1,13 +1,15 @@
 import numpy as np
 
-def init_parameters(layers_dim):
+def init_parameters(layers_dim, m):
     W = []
     b = []
     Z = []
     A = []
     for l in range(len(layers_dim) - 1):
-        W.append(np.random.rand(layers_dim[l+1], layers_dim[l]))
+        W.append(2 * np.random.rand(layers_dim[l+1], layers_dim[l]) - 1)
         b.append(np.zeros((layers_dim[l+1], 1)))
+        Z.append(np.zeros((layers_dim[l+1], m)))
+        A.append(np.zeros((layers_dim[l+1], m)))
     params = {
         "W": W,
         "b": b,
@@ -32,14 +34,14 @@ def forward_prop(A_prev, W, b):
     A = sigmoid(Z)
     return A, Z
 
-def full_forward_prop(X, Y, params, layers_dim):
+def full_forward_prop(X, params, layers_dim):
     A_prev = X
-    for l in range(len(layers_dim)):
+    for l in range(len(layers_dim) - 1):
         A, Z = forward_prop(A_prev, params["W"][l], params["b"][l])
         params["A"][l] = A
         params["Z"][l] = Z
         A_prev = A
-    return params
+    return params["Z"], params["A"]
 
 def back_prop(dA, W, Z, A_prev, m):
     dZ = np.multiply(dA, Dsigmoid(Z))
