@@ -1,21 +1,17 @@
 import numpy as np
 
 def init_parameters(layers_dim, m):
-    W = []
-    b = []
-    Z = []
-    A = []
-    for l in range(len(layers_dim) - 1):
-        W.append(2 * np.random.rand(layers_dim[l+1], layers_dim[l]) - 1)
-        b.append(np.zeros((layers_dim[l+1], 1)))
-        Z.append(np.zeros((layers_dim[l+1], m)))
-        A.append(np.zeros((layers_dim[l+1], m)))
     params = {
-        "W": W,
-        "b": b,
-        "Z": Z,
-        "A": A
+        "W": [],
+        "b": [],
+        "Z": [],
+        "A": []
     }
+    for l in range(len(layers_dim) - 1):
+        params["W"].append(2 * np.random.rand(layers_dim[l+1], layers_dim[l]) - 1)
+        params["b"].append(np.zeros((layers_dim[l+1], 1)))
+        params["Z"].append(np.zeros((layers_dim[l+1], m)))
+        params["A"].append(np.zeros((layers_dim[l+1], m)))
     return params
 
 def sigmoid(Z):
