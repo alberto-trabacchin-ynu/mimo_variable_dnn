@@ -22,13 +22,12 @@ class TestDeepNN(unittest.TestCase):
                       [-0.5, 0.1, 0.2, -0.6, 0.1]])
         params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim)
 
-    @unittest.skip("Need to change data format")
-    def test_cost_function(self):
-        Y = 2 * np.ones((2, 3))
-        Y_hat = np.zeros((2, 3))
-        exp_cost = 4
-        cost = deep_nn.cost_function(Y_hat, Y)
-        self.assertEqual(cost, exp_cost)
+    def test_compute_cost(self):
+        Y = 0.8 * np.ones((2, 3))
+        Y_hat = 0.3 * np.ones((2, 3))
+        exp_cost = 2.3870992
+        cost = deep_nn.compute_cost(Y_hat, Y)
+        self.assertAlmostEqual(cost, exp_cost)
 
     @unittest.skip("Need to change data format")
     def test_sigmoid_backward(self):
