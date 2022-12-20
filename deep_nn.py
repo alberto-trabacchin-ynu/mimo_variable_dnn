@@ -1,5 +1,6 @@
 import numpy as np
 
+#Then separate init_parameters with init_gradients
 def init_parameters(layers_dim, m):
     params = {
         "W": [],
@@ -7,12 +8,18 @@ def init_parameters(layers_dim, m):
         "Z": [],
         "A": []
     }
+    grads = {
+        "dW": [],
+        "db": [],
+    }
     for l in range(len(layers_dim) - 1):
         params["W"].append(2 * np.random.rand(layers_dim[l+1], layers_dim[l]) - 1)
         params["b"].append(np.zeros((layers_dim[l+1], 1)))
         params["Z"].append(np.zeros((layers_dim[l+1], m)))
         params["A"].append(np.zeros((layers_dim[l+1], m)))
-    return params
+        grads["dW"].append(np.zeros((layers_dim[l+1], layers_dim[l])))
+        grads["db"].append(np.zeros((layers_dim[l+1], 1)))
+    return params, grads
 
 def sigmoid(Z):
     A = 1 / (1 + np.exp(-Z))
@@ -47,23 +54,22 @@ def back_prop(dA, W, Z, A_prev, m):
     return dA_prev, dW, db
 
 #Change indexing method (NOT CLEAR!)
-def full_back_prop(dA, caches, params, layers_dim):
-    grads = {}
-    m = caches[0]["Z"].shape[1]
-    for l in range(len(layers_dim), 1, -1):
-        W = params["W" + str(l-1)]
-        Z = caches[l-2]["Z"]
-        A_prev = caches[l-2]["A"]
+def full_back_prop(dA, params, grads, layers_dim):
+    m = params["Z"][0].shape[1]
+    for l in range(len(layers_dim) - 1, 0, -1):
+        W = params["W"][l-1]
+        Z = params["Z"][l-1]
+        A_prev = params["A"][l-1]
         dA_prev, dW, db = back_prop(dA, W, Z, A_prev, m)
-        grads["dW" + str(l-1)] = dW
-        grads["db" + str(l-1)] = db
+        grads["dW"][l-1] = dW
+        grads["db"][l-1] = db
         dA = dA_prev
     return grads
 
-def update_params(params, grads, alpha):
+def update_parameters(params, grads, alpha):
     for i in range(len(params)):
-        params["W" + str(i+1)] = params["W" + str(i+1)] - alpha * grads["dW" + str(i+1)]
-        params["b" + str(i+1)] = params["b" + str(i+1)] - alpha * grads["db" + str(i+1)]
+        params["W"] = [W - alpha * dW for W, dW in zip(params["W"], grads["dW"])]
+        params["b"] = [b - alpha * db for b, db in zip(params["b"], grads["db"])]
     return params
 
 def compute_cost(Y, Y_hat):
