@@ -4,6 +4,13 @@ import numpy as np
 
 class TestDeepNN(unittest.TestCase):
 
+    def test_init_parameters(self):
+        m = 5
+        n = 3
+        p = 2
+        layers_dim = [n, 3, p]
+        params, grads = deep_nn.init_parameters(layers_dim, m)
+
     # Then test also forward_prop
     def test_full_forward_prop(self):
         layers_dim = [2, 7, 3]
@@ -26,23 +33,24 @@ class TestDeepNN(unittest.TestCase):
         params["Z"] = 0
         dAdZ = deep_nn.sigmoid_backward(params["Z"])
 
+    #Define a function to init deterministic input parameters (X)
     def test_full_back_prop(self):
         layers_dim = [2, 7, 3]
         m = 5
+        X = np.array([[0.3, 0.4, 0.1, -0.9, -0.2],
+                      [-0.5, 0.1, 0.2, -0.6, 0.1]])
         params, grads = deep_nn.init_parameters(layers_dim, m)
+        params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim)
         # Then define specific function to calculate dA
         dA = 0.3 * np.ones((3, m))
         grads = deep_nn.full_back_prop(dA, params, grads, layers_dim)
-        #print(grads["dW"][0])
 
     def test_update_parameters(self):
         layers_dim = [2, 7, 3]
         m = 5
         params, grads = deep_nn.init_parameters(layers_dim, m)
         alpha = 0.1
-        print(params["W"][0])
         params = deep_nn.update_parameters(params, grads, alpha)
-        print(params["W"][0])
 
     @unittest.skip("Need to change data format")
     def test_train_model(self):
@@ -54,14 +62,8 @@ class TestDeepNN(unittest.TestCase):
         Y = np.ones((p, m))
         params, grads = deep_nn.init_parameters(layers_dim)
         grads = deep_nn.train_model(X, Y, params, layers_dim)
-        print(grads["dW2"].shape)
 
-    def test_init_parameters(self):
-        m = 5
-        n = 3
-        p = 2
-        layers_dim = [n, 3, p]
-        params, grads = deep_nn.init_parameters(layers_dim, m)
+
 
 if __name__ == '__main__':
     unittest.main()
