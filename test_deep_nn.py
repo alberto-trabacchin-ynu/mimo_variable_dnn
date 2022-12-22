@@ -59,11 +59,7 @@ class TestDeepNN(unittest.TestCase):
                       [-0.5, 0.1, 0.2, -0.6, 0.1]])
         Y = np.ones((3, m))
         params, grads = deep_nn.init_parameters(layers_dim, m)
-        params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim)
-        dA = 0.3 * np.ones((3, m))
-        grads = deep_nn.full_back_prop(dA, params, grads, layers_dim, X)
-        #params = deep_nn.update_parameters(params, grads, alpha=0.1)
-        #params = deep_nn.train_model(X, Y, params, grads, layers_dim, alpha=0.1, n_iters=10)
+        params, losses = deep_nn.train_model(X, Y, params, grads, layers_dim, alpha=0.1, n_iters=1e4)
 
 
 

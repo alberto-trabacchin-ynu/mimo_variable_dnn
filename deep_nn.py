@@ -64,8 +64,8 @@ def full_back_prop(dA, params, grads, layers_dim, X):
         Z = params["Z"][l]
         A_prev = params["A"][l]
         dA_prev, dW, db = back_prop(dA, W, Z, A_prev, m)
-        grads["dW"][l-1] = dW
-        grads["db"][l-1] = db
+        grads["dW"][l] = dW
+        grads["db"][l] = db
         dA = dA_prev
     return grads
 
@@ -84,11 +84,13 @@ def compute_cost(Y, Y_hat):
 # Do not pass grads for external. Define specific function to initialize grads to use internally.
 def train_model(X, Y, params, grads, layers_dim, alpha, n_iters):
     L = len(layers_dim) - 2
-    params["Z"], params["A"] = full_forward_prop(X, params, layers_dim)
-    Y_hat = params["A"][L]
-    loss = compute_cost(Y, Y_hat)
-    #dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
-    dA = 0.3 * np.ones((3, Y.shape[1]))
-    grads = full_back_prop(dA, params, grads, layers_dim)
-    params = update_parameters(params, grads, alpha)
-    return params
+    losses = []
+    for iter in range(int(n_iters)):
+        params["Z"], params["A"] = full_forward_prop(X, params, layers_dim)
+        Y_hat = params["A"][L]
+        losses.append(compute_cost(Y, Y_hat))
+        dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
+        grads = full_back_prop(dA, params, grads, layers_dim, X)
+        params = update_parameters(params, grads, alpha)
+        #print(f"Iteration {iter + 1}: " + "[{0:.6f}]".format(losses[iter]))
+    return params, losses
