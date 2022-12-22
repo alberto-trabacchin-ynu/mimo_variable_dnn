@@ -1,7 +1,6 @@
 import numpy as np
 
-#Then separate init_parameters with init_gradients
-# Pass n_layers=L
+
 def init_parameters(layers_dim, m):
     params = {
         "W": [],
@@ -58,8 +57,6 @@ def back_prop(dA, W, Z, A_prev, m):
     dA_prev = np.dot(W.T, dZ)
     return dA_prev, dW, db
 
-# Change indexing method (NOT CLEAR!)
-# Pass n_layers=L instead of layers_dim
 def full_back_prop(dA, params, grads, layers_dim, X):
     m = params["Z"][0].shape[1]
     params["A"].insert(0, X)
@@ -85,7 +82,6 @@ def compute_cost(Y, Y_hat):
     loss = - np.sum(loss) / m
     return loss
 
-# Do not pass grads for external. Define specific function to initialize grads to use internally.
 def train_model(X, Y, params, layers_dim, alpha, n_iters, verbose=False):
     L = len(layers_dim) - 2
     m = X.shape[1]

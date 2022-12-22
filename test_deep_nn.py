@@ -2,6 +2,7 @@ import unittest
 import deep_nn
 import numpy as np
 
+
 class TestDeepNN(unittest.TestCase):
 
     def test_init_parameters(self):
