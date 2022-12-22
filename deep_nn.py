@@ -9,18 +9,22 @@ def init_parameters(layers_dim, m):
         "Z": [],
         "A": []
     }
-    grads = {
-        "dW": [],
-        "db": [],
-    }
     for l in range(len(layers_dim) - 1):
         params["W"].append(2 * np.random.rand(layers_dim[l+1], layers_dim[l]) - 1)
         params["b"].append(np.zeros((layers_dim[l+1], 1)))
         params["Z"].append(np.zeros((layers_dim[l+1], m)))
         params["A"].append(np.zeros((layers_dim[l+1], m)))
+    return params
+
+def init_gradients(layers_dim, m):
+    grads = {
+        "dW": [],
+        "db": [],
+    }
+    for l in range(len(layers_dim) - 1):
         grads["dW"].append(np.zeros((layers_dim[l+1], layers_dim[l])))
         grads["db"].append(np.zeros((layers_dim[l+1], 1)))
-    return params, grads
+    return grads
 
 def sigmoid(Z):
     A = 1 / (1 + np.exp(-Z))
@@ -82,9 +86,11 @@ def compute_cost(Y, Y_hat):
     return loss
 
 # Do not pass grads for external. Define specific function to initialize grads to use internally.
-def train_model(X, Y, params, grads, layers_dim, alpha, n_iters, verbose=False):
+def train_model(X, Y, params, layers_dim, alpha, n_iters, verbose=False):
     L = len(layers_dim) - 2
+    m = X.shape[1]
     losses = []
+    grads = init_gradients(layers_dim, m)
     for iter in range(int(n_iters)):
         params["Z"], params["A"] = full_forward_prop(X, params, layers_dim)
         Y_hat = params["A"][L]
@@ -93,5 +99,5 @@ def train_model(X, Y, params, grads, layers_dim, alpha, n_iters, verbose=False):
         grads = full_back_prop(dA, params, grads, layers_dim, X)
         params = update_parameters(params, grads, alpha)
         if verbose:
-            print(f"Iteration {iter + 1}: " + "[{0:.6f}]".format(losses[iter]))
+            print(f"Iteration {iter + 1}: " + "[{0:.8f}]".format(losses[iter]))
     return params, losses

@@ -9,13 +9,13 @@ class TestDeepNN(unittest.TestCase):
         n = 3
         p = 2
         layers_dim = [n, 3, p]
-        params, grads = deep_nn.init_parameters(layers_dim, m)
+        params = deep_nn.init_parameters(layers_dim, m)
 
     # Then test also forward_prop
     def test_full_forward_prop(self):
         layers_dim = [2, 7, 3]
         m = 5
-        params, grads = deep_nn.init_parameters(layers_dim, m)
+        params = deep_nn.init_parameters(layers_dim, m)
         X = np.array([[0.3, 0.4, 0.1, -0.9, -0.2],
                       [-0.5, 0.1, 0.2, -0.6, 0.1]])
         params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim)
@@ -39,7 +39,8 @@ class TestDeepNN(unittest.TestCase):
         m = 5
         X = np.array([[0.3, 0.4, 0.1, -0.9, -0.2],
                       [-0.5, 0.1, 0.2, -0.6, 0.1]])
-        params, grads = deep_nn.init_parameters(layers_dim, m)
+        params = deep_nn.init_parameters(layers_dim, m)
+        grads = deep_nn.init_gradients(layers_dim, m)
         params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim)
         # Then define specific function to calculate dA
         dA = 0.3 * np.ones((3, m))
@@ -48,7 +49,8 @@ class TestDeepNN(unittest.TestCase):
     def test_update_parameters(self):
         layers_dim = [2, 7, 3]
         m = 5
-        params, grads = deep_nn.init_parameters(layers_dim, m)
+        params = deep_nn.init_parameters(layers_dim, m)
+        grads = deep_nn.init_gradients(layers_dim, m)
         alpha = 0.1
         params = deep_nn.update_parameters(params, grads, alpha)
 
@@ -58,8 +60,8 @@ class TestDeepNN(unittest.TestCase):
         X = np.array([[0.3, 0.4, 0.1, -0.9, -0.2],
                       [-0.5, 0.1, 0.2, -0.6, 0.1]])
         Y = np.ones((3, m))
-        params, grads = deep_nn.init_parameters(layers_dim, m)
-        params, losses = deep_nn.train_model(X, Y, params, grads, layers_dim, alpha=0.1, n_iters=1e4, verbose=False)
+        params= deep_nn.init_parameters(layers_dim, m)
+        params, losses = deep_nn.train_model(X, Y, params, layers_dim, alpha=0.1, n_iters=1e4, verbose=True)
 
 
 
