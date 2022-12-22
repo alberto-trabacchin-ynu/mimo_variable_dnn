@@ -82,7 +82,7 @@ def compute_cost(Y, Y_hat):
     return loss
 
 # Do not pass grads for external. Define specific function to initialize grads to use internally.
-def train_model(X, Y, params, grads, layers_dim, alpha, n_iters):
+def train_model(X, Y, params, grads, layers_dim, alpha, n_iters, verbose=False):
     L = len(layers_dim) - 2
     losses = []
     for iter in range(int(n_iters)):
@@ -92,5 +92,6 @@ def train_model(X, Y, params, grads, layers_dim, alpha, n_iters):
         dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
         grads = full_back_prop(dA, params, grads, layers_dim, X)
         params = update_parameters(params, grads, alpha)
-        #print(f"Iteration {iter + 1}: " + "[{0:.6f}]".format(losses[iter]))
+        if verbose:
+            print(f"Iteration {iter + 1}: " + "[{0:.6f}]".format(losses[iter]))
     return params, losses
