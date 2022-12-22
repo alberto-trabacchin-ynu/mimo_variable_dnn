@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def init_parameters(layers_dim, m):
     params = {
         "W": [],
@@ -82,7 +81,7 @@ def compute_cost(Y, Y_hat):
     loss = - np.sum(loss) / m
     return loss
 
-def train_model(X, Y, params, layers_dim, alpha, n_iters, verbose=False):
+def train_model(X, Y, params, layers_dim, alpha, n_iters, verbose=None):
     L = len(layers_dim) - 2
     m = X.shape[1]
     losses = []
@@ -90,10 +89,10 @@ def train_model(X, Y, params, layers_dim, alpha, n_iters, verbose=False):
     for iter in range(int(n_iters)):
         params["Z"], params["A"] = full_forward_prop(X, params, layers_dim)
         Y_hat = params["A"][L]
-        losses.append(compute_cost(Y, Y_hat))
         dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
         grads = full_back_prop(dA, params, grads, layers_dim, X)
         params = update_parameters(params, grads, alpha)
-        if verbose:
-            print(f"Iteration {iter + 1}: " + "[{0:.8f}]".format(losses[iter]))
+        if verbose is not None and (iter % verbose == 0):
+            losses.append(compute_cost(Y, Y_hat))
+            print(f"Iteration {iter}: " + "[{0:.8f}]".format(losses[-1]))            
     return params, losses

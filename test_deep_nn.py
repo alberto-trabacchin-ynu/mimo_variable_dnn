@@ -56,13 +56,13 @@ class TestDeepNN(unittest.TestCase):
         params = deep_nn.update_parameters(params, grads, alpha)
 
     def test_train_model(self):
-        layers_dim = [2, 7, 3]
+        layers_dim = [2, 2500, 500, 30, 3]
         m = 5
         X = np.array([[0.3, 0.4, 0.1, -0.9, -0.2],
                       [-0.5, 0.1, 0.2, -0.6, 0.1]])
         Y = np.ones((3, m))
         params= deep_nn.init_parameters(layers_dim, m)
-        params, losses = deep_nn.train_model(X, Y, params, layers_dim, alpha=0.1, n_iters=1e4, verbose=True)
+        params, losses = deep_nn.train_model(X, Y, params, layers_dim, alpha=0.1, n_iters=1e4, verbose=100)
 
 
 
