@@ -43,7 +43,7 @@ class TestDeepNN(unittest.TestCase):
         params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim)
         # Then define specific function to calculate dA
         dA = 0.3 * np.ones((3, m))
-        grads = deep_nn.full_back_prop(dA, params, grads, layers_dim)
+        grads = deep_nn.full_back_prop(dA, params, grads, layers_dim, X)
 
     def test_update_parameters(self):
         layers_dim = [2, 7, 3]
@@ -52,16 +52,18 @@ class TestDeepNN(unittest.TestCase):
         alpha = 0.1
         params = deep_nn.update_parameters(params, grads, alpha)
 
-    @unittest.skip("Need to change data format")
     def test_train_model(self):
-        m = 10
-        n = 3
-        p = 2
-        layers_dim = [n, 4, p]
-        X = np.ones((n, m))
-        Y = np.ones((p, m))
-        params, grads = deep_nn.init_parameters(layers_dim)
-        grads = deep_nn.train_model(X, Y, params, layers_dim)
+        layers_dim = [2, 7, 3]
+        m = 5
+        X = np.array([[0.3, 0.4, 0.1, -0.9, -0.2],
+                      [-0.5, 0.1, 0.2, -0.6, 0.1]])
+        Y = np.ones((3, m))
+        params, grads = deep_nn.init_parameters(layers_dim, m)
+        params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim)
+        dA = 0.3 * np.ones((3, m))
+        grads = deep_nn.full_back_prop(dA, params, grads, layers_dim, X)
+        #params = deep_nn.update_parameters(params, grads, alpha=0.1)
+        #params = deep_nn.train_model(X, Y, params, grads, layers_dim, alpha=0.1, n_iters=10)
 
 
 

@@ -1,6 +1,7 @@
 import numpy as np
 
 #Then separate init_parameters with init_gradients
+# Pass n_layers=L
 def init_parameters(layers_dim, m):
     params = {
         "W": [],
@@ -26,7 +27,7 @@ def sigmoid(Z):
     return A
 
 def Dsigmoid(Z):
-    return sigmoid(Z) * (1 - sigmoid(Z))
+    return np.multiply(sigmoid(Z), 1 - sigmoid(Z))
 
 def relu(Z):
     A = np.maximum(0, Z)
@@ -53,13 +54,15 @@ def back_prop(dA, W, Z, A_prev, m):
     dA_prev = np.dot(W.T, dZ)
     return dA_prev, dW, db
 
-#Change indexing method (NOT CLEAR!)
-def full_back_prop(dA, params, grads, layers_dim):
+# Change indexing method (NOT CLEAR!)
+# Pass n_layers=L instead of layers_dim
+def full_back_prop(dA, params, grads, layers_dim, X):
     m = params["Z"][0].shape[1]
-    for l in range(len(layers_dim) - 1, 0, -1):
-        W = params["W"][l-1]
-        Z = params["Z"][l-1]
-        A_prev = params["A"][l-1]
+    params["A"].insert(0, X)
+    for l in range(len(layers_dim) - 2, -1, -1):
+        W = params["W"][l]
+        Z = params["Z"][l]
+        A_prev = params["A"][l]
         dA_prev, dW, db = back_prop(dA, W, Z, A_prev, m)
         grads["dW"][l-1] = dW
         grads["db"][l-1] = db
@@ -78,10 +81,14 @@ def compute_cost(Y, Y_hat):
     loss = - np.sum(loss) / m
     return loss
 
-def train_model(X, Y, params, layers_dim):
-    Y_hat, caches = full_forward_prop(X, Y, params, layers_dim)
+# Do not pass grads for external. Define specific function to initialize grads to use internally.
+def train_model(X, Y, params, grads, layers_dim, alpha, n_iters):
+    L = len(layers_dim) - 2
+    params["Z"], params["A"] = full_forward_prop(X, params, layers_dim)
+    Y_hat = params["A"][L]
+    loss = compute_cost(Y, Y_hat)
     #dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
-    #grads = full_back_prop(dA, caches, params, layers_dim)
-    #params = update_params(params, grads, 0.1)
-    
-    return grads
+    dA = 0.3 * np.ones((3, Y.shape[1]))
+    grads = full_back_prop(dA, params, grads, layers_dim)
+    params = update_parameters(params, grads, alpha)
+    return params
