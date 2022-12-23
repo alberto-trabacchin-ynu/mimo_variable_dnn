@@ -33,7 +33,7 @@ class TestDeepNN(unittest.TestCase):
                       [-0.5, 0.1, 0.2, -0.6, 0.1]])
         params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim, activations)
 
-    #@unittest.skip("Need to change data format")
+    @unittest.skip("Need to change data format")
     def test_compute_cost(self):
         Y = 0.8 * np.ones((2, 3))
         Y_hat = 0.3 * np.ones((2, 3))
@@ -108,7 +108,7 @@ class TestDeepNN(unittest.TestCase):
         #Y_hat = deep_nn.predict(x, params, layers_dim, activations)
         #print(Y_hat)
 
-    #@unittest.skip("Need to change data format")
+    @unittest.skip("Need to change data format")
     def test_iris_prediction(self):
         X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data(Path("dataset/iris.data"), 0.3)
         X_train = X_train
@@ -123,6 +123,13 @@ class TestDeepNN(unittest.TestCase):
                                              alpha=0.5, n_iters=1e5, verbose=1e3)
         test_cost = deep_nn.test_model(X_test, Y_test, params, layers_dim, activations)
         print(test_cost)
+
+    def test_plot_losses(self):
+        step_save = 1
+        iters = np.arange(0, 1e3)
+        losses = np.exp(iters / 1e2)
+        #print(losses)
+        deep_nn.plot_losses(losses, step_save)
 
 if __name__ == '__main__':
     unittest.main()

@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
+from matplotlib import pyplot as plt
 
 def load_iris_data(ds_path, test_size):
     ds_path = Path(ds_path)
@@ -142,3 +143,8 @@ def test_model(X_test, Y_test, params, layers_dim, activations):
     Y_hat = params["A"][L]
     cost = compute_cost(Y_test, Y_hat)
     return cost
+
+def plot_losses(losses, step_save):
+    iters = np.arange(0, len(losses) * step_save, step_save)
+    plt.plot(iters, losses)
+    plt.show()
