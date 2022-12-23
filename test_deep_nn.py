@@ -1,9 +1,19 @@
 import unittest
 import deep_nn
 import numpy as np
+from pathlib import Path
+import pandas as pd
 
 
 class TestDeepNN(unittest.TestCase):
+
+    def test_load_iris_data(self):
+        file_path = Path("dataset/iris.data")
+        test_size = 0.2
+        random_state = 42
+        X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data(file_path, test_size)
+        print(Y_test.shape)
+        
 
     @unittest.skip("Need to change data format")
     def test_init_parameters(self):
@@ -81,7 +91,7 @@ class TestDeepNN(unittest.TestCase):
         params, losses = deep_nn.train_model(X, Y, params, layers_dim, activations, 
                                              alpha=0.1, n_iters=1e4, verbose=100)
 
-    #@unittest.skip("Need to change data format")
+    @unittest.skip("Need to change data format")
     def test_predict(self):
         layers_dim = [2, 5, 4, 3]
         activations = ["sigmoid", "sigmoid", "softmax"]

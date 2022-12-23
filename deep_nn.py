@@ -1,4 +1,26 @@
+from pathlib import Path
+import urllib.request
+import pandas as pd
 import numpy as np
+from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+
+def load_iris_data(ds_path, test_size):
+    ds_path = Path(ds_path)
+    if not ds_path.is_file():
+        Path("dataset").mkdir(parents=True, exist_ok=True)
+        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+        urllib.request.urlretrieve(url, ds_path)
+    iris = pd.read_csv(ds_path).to_numpy()
+    X = iris[:, 0:4]
+    labels = iris[:, 4].reshape(-1, 1)
+    #kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    one_hot_enc = OneHotEncoder(handle_unknown="ignore")
+    enc_labels = one_hot_enc.fit_transform(labels).toarray()
+    x_train, x_test, y_train, y_test = train_test_split(X, enc_labels,
+                                                        test_size=test_size, random_state=42)
+    return x_train.T, y_train.T, x_test.T, y_test.T
 
 def init_parameters(layers_dim, m):
     params = {
