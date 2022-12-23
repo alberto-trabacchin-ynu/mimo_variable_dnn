@@ -24,6 +24,10 @@ def init_gradients(layers_dim, m):
         grads["db"].append(np.zeros((layers_dim[l+1], 1)))
     return grads
 
+def softmax(Z):
+    A = np.exp(Z) / np.sum(np.exp(Z), axis=0)
+    return A
+
 def sigmoid(Z):
     A = 1 / (1 + np.exp(-Z))
     return A
@@ -35,18 +39,21 @@ def relu(Z):
     A = np.maximum(0, Z)
     return A
 
-def forward_prop(A_prev, W, b):
+def forward_prop(A_prev, W, b, activation):
     Z = np.dot(W, A_prev) + b
-    A = sigmoid(Z)
+    if activation == "sigmoid":
+        A = sigmoid(Z)
+    elif activation == "softmax":
+        A = softmax(Z)
     return A, Z
 
-def full_forward_prop(X, params, layers_dim):
+def full_forward_prop(X, params, layers_dim, activations=None):
     A_prev = X
-    for l in range(len(layers_dim) - 1):
-        A, Z = forward_prop(A_prev, params["W"][l], params["b"][l])
-        params["A"][l] = A
-        params["Z"][l] = Z
-        A_prev = A
+    L = len(layers_dim) - 2
+    for l in range(L):
+        params["A"][l], params["Z"][l] = forward_prop(A_prev, params["W"][l], params["b"][l], activations[l])
+        A_prev = params["A"][l]
+    params["A"][L], params["Z"][L] = forward_prop(A_prev, params["W"][L], params["b"][L], activations[L])
     return params["Z"], params["A"]
 
 def back_prop(dA, W, Z, A_prev, m):
@@ -81,13 +88,13 @@ def compute_cost(Y, Y_hat):
     loss = - np.sum(loss) / m
     return loss
 
-def train_model(X, Y, params, layers_dim, alpha, n_iters, verbose=None):
+def train_model(X, Y, params, layers_dim, activations, alpha, n_iters, verbose=None):
     L = len(layers_dim) - 2
     m = X.shape[1]
     losses = []
     grads = init_gradients(layers_dim, m)
-    for iter in range(int(n_iters)):
-        params["Z"], params["A"] = full_forward_prop(X, params, layers_dim)
+    for iter in range(1, int(n_iters) + 1):
+        params["Z"], params["A"] = full_forward_prop(X, params, layers_dim, activations)
         Y_hat = params["A"][L]
         dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
         grads = full_back_prop(dA, params, grads, layers_dim, X)
@@ -96,3 +103,8 @@ def train_model(X, Y, params, layers_dim, alpha, n_iters, verbose=None):
             losses.append(compute_cost(Y, Y_hat))
             print(f"Iteration {iter}: " + "[{0:.8f}]".format(losses[-1]))            
     return params, losses
+
+def predict(x, params, layers_dim, activations):
+    L = len(layers_dim) - 2
+    params["Z"], params["A"] = full_forward_prop(x, params, layers_dim, activations)
+    return params["A"][L]
