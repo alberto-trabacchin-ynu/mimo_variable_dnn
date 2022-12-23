@@ -20,7 +20,11 @@ def load_iris_data(ds_path, test_size):
     enc_labels = one_hot_enc.fit_transform(labels).toarray()
     x_train, x_test, y_train, y_test = train_test_split(X, enc_labels,
                                                         test_size=test_size, random_state=42)
-    return x_train.T, y_train.T, x_test.T, y_test.T
+    x_train = x_train.T.astype(float) / 10
+    x_test = x_test.T.astype(float) / 10
+    y_train = y_train.T.astype(float)
+    y_test = y_test.T.astype(float)
+    return x_train, y_train, x_test, y_test
 
 def init_parameters(layers_dim, m):
     params = {
@@ -118,7 +122,8 @@ def train_model(X, Y, params, layers_dim, activations, alpha, n_iters, verbose=N
     for iter in range(1, int(n_iters) + 1):
         params["Z"], params["A"] = full_forward_prop(X, params, layers_dim, activations)
         Y_hat = params["A"][L]
-        dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
+        #dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
+        dA = Y_hat - Y
         grads = full_back_prop(dA, params, grads, layers_dim, X)
         params = update_parameters(params, grads, alpha)
         if verbose is not None and (iter % verbose == 0):
@@ -130,3 +135,10 @@ def predict(x, params, layers_dim, activations):
     L = len(layers_dim) - 2
     params["Z"], params["A"] = full_forward_prop(x, params, layers_dim, activations)
     return params["A"][L]
+
+def test_model(X_test, Y_test, params, layers_dim, activations):
+    L = len(layers_dim) - 2
+    params["Z"], params["A"] = full_forward_prop(X_test, params, layers_dim, activations)
+    Y_hat = params["A"][L]
+    cost = compute_cost(Y_test, Y_hat)
+    return cost

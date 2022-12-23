@@ -7,14 +7,13 @@ import pandas as pd
 
 class TestDeepNN(unittest.TestCase):
 
+    @unittest.skip("Need to change data format")
     def test_load_iris_data(self):
         file_path = Path("dataset/iris.data")
         test_size = 0.2
         random_state = 42
         X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data(file_path, test_size)
-        print(Y_test.shape)
         
-
     @unittest.skip("Need to change data format")
     def test_init_parameters(self):
         m = 5
@@ -34,7 +33,7 @@ class TestDeepNN(unittest.TestCase):
                       [-0.5, 0.1, 0.2, -0.6, 0.1]])
         params["Z"], params["A"] = deep_nn.full_forward_prop(X, params, layers_dim, activations)
 
-    @unittest.skip("Need to change data format")
+    #@unittest.skip("Need to change data format")
     def test_compute_cost(self):
         Y = 0.8 * np.ones((2, 3))
         Y_hat = 0.3 * np.ones((2, 3))
@@ -48,6 +47,7 @@ class TestDeepNN(unittest.TestCase):
         params["Z"] = 0
         dAdZ = deep_nn.sigmoid_backward(params["Z"])
 
+    @unittest.skip("Need to change data format")
     def test_softmax(self):
         Z = np.array([[0.7, 0.1, 0.4],
                       [0.5, 0.2, 0.9]])
@@ -108,6 +108,21 @@ class TestDeepNN(unittest.TestCase):
         #Y_hat = deep_nn.predict(x, params, layers_dim, activations)
         #print(Y_hat)
 
+    #@unittest.skip("Need to change data format")
+    def test_iris_prediction(self):
+        X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data(Path("dataset/iris.data"), 0.3)
+        X_train = X_train
+        X_test = X_test
+        m = X_train.shape[1]
+        n = X_train.shape[0]
+        p = Y_train.shape[0]
+        layers_dim = [n, 130, 8, p]
+        activations = ["sigmoid", "sigmoid", "softmax"]
+        params = deep_nn.init_parameters(layers_dim, m)
+        params, losses = deep_nn.train_model(X_train, Y_train, params, layers_dim, activations,
+                                             alpha=0.5, n_iters=1e5, verbose=1e3)
+        test_cost = deep_nn.test_model(X_test, Y_test, params, layers_dim, activations)
+        print(test_cost)
 
 if __name__ == '__main__':
     unittest.main()
