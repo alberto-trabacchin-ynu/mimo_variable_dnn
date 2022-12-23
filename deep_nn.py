@@ -115,22 +115,28 @@ def compute_cost(Y, Y_hat):
     loss = - np.sum(loss) / m
     return loss
 
-def train_model(X, Y, params, layers_dim, activations, alpha, n_iters, verbose=None):
+def train_model(X, Y, params, layers_dim, activations, alpha, n_iters, step_save, verbose=None):
     L = len(layers_dim) - 2
     m = X.shape[1]
-    losses = []
+    errors = {
+        "iters": [],
+        "losses": []
+    }
     grads = init_gradients(layers_dim, m)
-    for iter in range(1, int(n_iters) + 1):
+    for iter in range(0, int(n_iters)):
         params["Z"], params["A"] = full_forward_prop(X, params, layers_dim, activations)
         Y_hat = params["A"][L]
         #dA = - np.divide(Y, Y_hat) + np.divide(1 - Y, 1 - Y_hat)
         dA = Y_hat - Y
         grads = full_back_prop(dA, params, grads, layers_dim, X)
         params = update_parameters(params, grads, alpha)
+        if iter % step_save == 0:
+            errors["losses"].append(compute_cost(Y, Y_hat))
+            errors["iters"].append(iter)
         if verbose is not None and (iter % verbose == 0):
-            losses.append(compute_cost(Y, Y_hat))
-            print(f"Iteration {iter}: " + "[{0:.8f}]".format(losses[-1]))            
-    return params, losses
+            loss = compute_cost(Y, Y_hat)
+            print(f"Iteration {iter}: " + "[{0:.8f}]".format(loss))  
+    return params, errors
 
 def predict(x, params, layers_dim, activations):
     L = len(layers_dim) - 2
@@ -144,7 +150,21 @@ def test_model(X_test, Y_test, params, layers_dim, activations):
     cost = compute_cost(Y_test, Y_hat)
     return cost
 
-def plot_losses(losses, step_save):
-    iters = np.arange(0, len(losses) * step_save, step_save)
-    plt.plot(iters, losses)
+def plot_losses(errors):
+    plt.plot(errors["iters"], errors["losses"], label="error")
+    plt.xlabel("iterations")
+    plt.ylabel("Error")
+    plt.title("Multinomial Log-loss")
     plt.show()
+
+
+X_train, Y_train, X_test, Y_test = load_iris_data(Path("dataset/iris.data"), 0.3)
+m = X_train.shape[1]
+n = X_train.shape[0]
+p = Y_train.shape[0]
+layers_dim = [n, 130, 8, p]
+activations = ["sigmoid", "sigmoid", "softmax"]
+params = init_parameters(layers_dim, m)
+params, errors = train_model(X_train, Y_train, params, layers_dim, activations, alpha=0.1,
+                             n_iters=3e4, step_save=100, verbose=1e3)
+plot_losses(errors)

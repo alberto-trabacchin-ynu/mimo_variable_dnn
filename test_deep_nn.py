@@ -124,11 +124,26 @@ class TestDeepNN(unittest.TestCase):
         test_cost = deep_nn.test_model(X_test, Y_test, params, layers_dim, activations)
         print(test_cost)
 
+    @unittest.skip("Need to change data format")
     def test_plot_losses(self):
         step_save = 1
         iters = np.arange(0, 1e3)
         losses = np.exp(iters / 1e2)
         #print(losses)
+        deep_nn.plot_losses(losses, step_save)
+
+    def test_iris_prediction(self):
+        X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data(Path("dataset/iris.data"), 0.3)
+        m = X_train.shape[1]
+        n = X_train.shape[0]
+        p = Y_train.shape[0]
+        layers_dim = [n, 130, 8, p]
+        activations = ["sigmoid", "sigmoid", "softmax"]
+        step_save = 10
+        n_iters = 1e4
+        params = deep_nn.init_parameters(layers_dim, m)
+        params, losses = deep_nn.train_model(X_train, Y_train, params, layers_dim, activations,
+                                             alpha=0.1, n_iters=n_iters, verbose=step_save)
         deep_nn.plot_losses(losses, step_save)
 
 if __name__ == '__main__':
