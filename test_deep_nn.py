@@ -15,10 +15,9 @@ class TestDeepNN(unittest.TestCase):
         x_train, y_train, x_test, y_test = deep_nn.load_iris_data_hold_out(file_path, test_size)
         print(x_train.shape)
 
+    @unittest.skip("Need to change data format")
     def test_load_iris_data_kfold(self):
         file_path = Path("dataset/iris.data")
-        test_size = 0.2
-        random_state = 42
         X_train, y_train, X_test, y_test = deep_nn.load_iris_data_kfold(file_path, 5, True)
         
     @unittest.skip("Need to change data format")
@@ -96,7 +95,7 @@ class TestDeepNN(unittest.TestCase):
                       [0, 0, 0, 0, 1]])
         params= deep_nn.init_parameters(layers_dim, m)
         params, losses = deep_nn.train_model(X, Y, params, layers_dim, activations, 
-                                             alpha=0.1, n_iters=1e4, verbose=100)
+                                             alpha=0.1, n_iters=1e4, step_save=100, verbose=100)
 
     @unittest.skip("Need to change data format")
     def test_predict(self):
@@ -141,7 +140,7 @@ class TestDeepNN(unittest.TestCase):
 
     @unittest.skip("Need to change data format")
     def test_iris_prediction(self):
-        X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data(Path("dataset/iris.data"), 0.3)
+        X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data_hold_out(Path("dataset/iris.data"), 0.3)
         m = X_train.shape[1]
         n = X_train.shape[0]
         p = Y_train.shape[0]
@@ -153,6 +152,21 @@ class TestDeepNN(unittest.TestCase):
         params, losses = deep_nn.train_model(X_train, Y_train, params, layers_dim, activations,
                                              alpha=0.1, n_iters=n_iters, verbose=step_save)
         deep_nn.plot_losses(losses, step_save)
+
+    unittest.skip("Need to change data format")
+    def test_cross_validate(self):
+        X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data_kfold(
+                                           Path("dataset/iris.data"), n_splits=5, shuffle=True)
+        layers_dim = [4, 130, 8, 3]
+        activations = ["sigmoid", "sigmoid", "softmax"]
+        step_save = 10
+        n_iters = 1e3
+        alpha = 0.2
+        file_path = Path("dataset/iris.data")
+        X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data_kfold(file_path, 5, True)
+        best_params, error = deep_nn.cross_validate(X_train, X_test, Y_train, Y_test, layers_dim, 
+                                                     activations, alpha, n_iters, step_save, verbose=100)
+        print("Best: " + str(error["losses"][-1]))
 
 if __name__ == '__main__':
     unittest.main()

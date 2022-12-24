@@ -46,8 +46,8 @@ def load_iris_data_kfold(ds_path, n_splits, shuffle):
     for train_index, test_index in kf.split(X):
         X_train.append(X[train_index].T.astype(float) / 10)
         X_test.append(X[test_index].T.astype(float) / 10)
-        y_train.append(enc_labels[train_index].T.astype(float) / 10)
-        y_test.append(enc_labels[test_index].T.astype(float) / 10)
+        y_train.append(enc_labels[train_index].T.astype(float))
+        y_test.append(enc_labels[test_index].T.astype(float))
     return X_train, y_train, X_test, y_test
 
 def init_parameters(layers_dim, m):
@@ -153,12 +153,12 @@ def train_model(X, Y, params, layers_dim, activations, alpha, n_iters, step_save
         dA = Y_hat - Y
         grads = full_back_prop(dA, params, grads, layers_dim, X)
         params = update_parameters(params, grads, alpha)
-        if iter % step_save == 0:
-            errors["losses"].append(compute_cost(Y, Y_hat))
+        loss = compute_cost(Y, Y_hat)
+        if (iter % step_save == 0) or (iter == n_iters-1):
+            errors["losses"].append(loss)
             errors["iters"].append(iter)
-        if verbose is not None and (iter % verbose == 0):
-            loss = compute_cost(Y, Y_hat)
-            print(f"Iteration {iter}: " + "[{0:.8f}]".format(loss))  
+        if verbose is not None and (iter % verbose == 0 or iter == n_iters-1):
+            print(f"Iteration {iter}: " + "[{0:.8f}]".format(loss))
     return params, errors
 
 def predict(x, params, layers_dim, activations):
@@ -172,6 +172,20 @@ def test_model(X_test, Y_test, params, layers_dim, activations):
     Y_hat = params["A"][L]
     cost = compute_cost(Y_test, Y_hat)
     return cost
+
+def cross_validate(X_train, X_test, Y_train, Y_test, layers_dim, 
+                   activations, alpha, n_iters, step_save, verbose=None):
+    error_ref = 100
+    for x_train, y_train, x_test, y_test in zip(X_train, Y_train, X_test, Y_test):
+        m = x_train.shape[1]
+        params = init_parameters(layers_dim, m)
+        tmp_params, tmp_error = train_model(x_train, y_train, params, layers_dim, 
+                                                   activations, alpha, n_iters, step_save, verbose)
+        if tmp_error["losses"][-1] < error_ref:
+            error_ref = tmp_error["losses"][-1]
+            error = tmp_error
+            best_params = tmp_params
+    return best_params, error
 
 def plot_losses(errors):
     # size=15, width=3 for two figures side-by-side
@@ -190,7 +204,7 @@ def plot_losses(errors):
     plt.show()
 
 if __name__ == "__main__":
-    X_train, Y_train, X_test, Y_test = load_iris_data(Path("dataset/iris.data"), 0.3)
+    X_train, Y_train, X_test, Y_test = load_iris_data_hold_out(Path("dataset/iris.data"), 0.3)
     m = X_train.shape[1]
     n = X_train.shape[0]
     p = Y_train.shape[0]
