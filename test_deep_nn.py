@@ -8,11 +8,18 @@ import pandas as pd
 class TestDeepNN(unittest.TestCase):
 
     @unittest.skip("Need to change data format")
-    def test_load_iris_data(self):
+    def test_load_iris_data_hold_out(self):
         file_path = Path("dataset/iris.data")
         test_size = 0.2
         random_state = 42
-        X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data(file_path, test_size)
+        x_train, y_train, x_test, y_test = deep_nn.load_iris_data_hold_out(file_path, test_size)
+        print(x_train.shape)
+
+    def test_load_iris_data_kfold(self):
+        file_path = Path("dataset/iris.data")
+        test_size = 0.2
+        random_state = 42
+        X_train, y_train, X_test, y_test = deep_nn.load_iris_data_kfold(file_path, 5, True)
         
     @unittest.skip("Need to change data format")
     def test_init_parameters(self):
@@ -132,6 +139,7 @@ class TestDeepNN(unittest.TestCase):
         #print(losses)
         deep_nn.plot_losses(losses, step_save)
 
+    @unittest.skip("Need to change data format")
     def test_iris_prediction(self):
         X_train, Y_train, X_test, Y_test = deep_nn.load_iris_data(Path("dataset/iris.data"), 0.3)
         m = X_train.shape[1]

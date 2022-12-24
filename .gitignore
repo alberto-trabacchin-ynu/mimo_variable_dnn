@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 dataset/*
+diagrams/*
 
 # C extensions
 *.so

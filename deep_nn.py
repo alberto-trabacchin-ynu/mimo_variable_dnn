@@ -6,8 +6,9 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from matplotlib import pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
-def load_iris_data(ds_path, test_size):
+def load_iris_data_hold_out(ds_path, test_size):
     ds_path = Path(ds_path)
     if not ds_path.is_file():
         Path("dataset").mkdir(parents=True, exist_ok=True)
@@ -16,7 +17,6 @@ def load_iris_data(ds_path, test_size):
     iris = pd.read_csv(ds_path).to_numpy()
     X = iris[:, 0:4]
     labels = iris[:, 4].reshape(-1, 1)
-    #kf = KFold(n_splits=5, shuffle=True, random_state=42)
     one_hot_enc = OneHotEncoder(handle_unknown="ignore")
     enc_labels = one_hot_enc.fit_transform(labels).toarray()
     x_train, x_test, y_train, y_test = train_test_split(X, enc_labels,
@@ -26,6 +26,29 @@ def load_iris_data(ds_path, test_size):
     y_train = y_train.T.astype(float)
     y_test = y_test.T.astype(float)
     return x_train, y_train, x_test, y_test
+
+def load_iris_data_kfold(ds_path, n_splits, shuffle):
+    ds_path = Path(ds_path)
+    if not ds_path.is_file():
+        Path("dataset").mkdir(parents=True, exist_ok=True)
+        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+        urllib.request.urlretrieve(url, ds_path)
+    iris = pd.read_csv(ds_path).to_numpy()
+    X = iris[:, 0:4]
+    labels = iris[:, 4].reshape(-1, 1)
+    one_hot_enc = OneHotEncoder(handle_unknown="ignore")
+    enc_labels = one_hot_enc.fit_transform(labels).toarray()
+    kf = KFold(n_splits, shuffle=shuffle, random_state=42)
+    X_train = []
+    X_test = []
+    y_train = []
+    y_test = []
+    for train_index, test_index in kf.split(X):
+        X_train.append(X[train_index].T.astype(float) / 10)
+        X_test.append(X[test_index].T.astype(float) / 10)
+        y_train.append(enc_labels[train_index].T.astype(float) / 10)
+        y_test.append(enc_labels[test_index].T.astype(float) / 10)
+    return X_train, y_train, X_test, y_test
 
 def init_parameters(layers_dim, m):
     params = {
@@ -151,20 +174,29 @@ def test_model(X_test, Y_test, params, layers_dim, activations):
     return cost
 
 def plot_losses(errors):
-    plt.plot(errors["iters"], errors["losses"], label="error")
-    plt.xlabel("iterations")
-    plt.ylabel("Error")
-    plt.title("Multinomial Log-loss")
+    # size=15, width=3 for two figures side-by-side
+    # size=18, width=4 for three figures in the same line
+    size = 18
+    xfmt = ScalarFormatter()
+    plt.plot(errors["iters"], errors["losses"], '#A2142F', linewidth=4, label="error")
+    plt.grid()
+    plt.xlabel("iterations", size=size)
+    plt.ylabel("Multinomial Log-loss", size=size)
+    plt.xticks([0, 10000, 20000, 30000], size=size)
+    plt.yticks(size=size)
+    plt.xlim([0, errors["iters"][-1] + 1])
+    #plt.title("Multinomial Log-loss")
+    plt.savefig("log_loss_alpha01_L3.eps", format="eps")
     plt.show()
 
-
-X_train, Y_train, X_test, Y_test = load_iris_data(Path("dataset/iris.data"), 0.3)
-m = X_train.shape[1]
-n = X_train.shape[0]
-p = Y_train.shape[0]
-layers_dim = [n, 130, 8, p]
-activations = ["sigmoid", "sigmoid", "softmax"]
-params = init_parameters(layers_dim, m)
-params, errors = train_model(X_train, Y_train, params, layers_dim, activations, alpha=0.1,
-                             n_iters=3e4, step_save=100, verbose=1e3)
-plot_losses(errors)
+if __name__ == "__main__":
+    X_train, Y_train, X_test, Y_test = load_iris_data(Path("dataset/iris.data"), 0.3)
+    m = X_train.shape[1]
+    n = X_train.shape[0]
+    p = Y_train.shape[0]
+    layers_dim = [n, 130, 8, p]
+    activations = ["sigmoid", "sigmoid", "softmax"]
+    params = init_parameters(layers_dim, m)
+    params, errors = train_model(X_train, Y_train, params, layers_dim, activations, alpha=1,
+                                n_iters=3e4, step_save=100, verbose=1e3)
+    plot_losses(errors)
